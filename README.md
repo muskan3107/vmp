@@ -1,23 +1,23 @@
-Aksharsetu — Volunteer Management Portal
+### Aksharsetu — Volunteer Management Portal
 
-Project Overview
+## Project Overview
 
 Aksharsetu is a web application designed to help both on-ground volunteers and NGO admins stay organized and connected.
 It provides an easy-to-use platform to manage volunteering sessions, log hours, track activities, and support NGO missions with technical and non-technical features.
 
-Key Features
+## Key Features
 
-Volunteer Portal
+# Volunteer Portal
 
 * User-friendly space where volunteers can check in to their sessions, check tasks, log hours, upload reports or photos
 * Quick access to important resources volunteers might need
 
-Admin Dashboard
+# Admin Dashboard
 
 * Basic control panel for NGO admins to manage sessions and volunteer activities
 * View reports, track volunteer participation, and confirm attendance without hassle
 
-Technology Stack
+# Technology Stack
 
 * Frontend: React.js/HTML/CSS
 * Backend: Python (Flask)
@@ -25,15 +25,15 @@ Technology Stack
 * Authentication: JWT 
 * API: RESTful JSON endpoints
 
-Getting Started
+## Getting Started
 
-Prerequisites
+# Prerequisites
 
 * Node.js & npm (for frontend)
 * Python 3.x (for backend)
 * MongoDB 
 
-Setup and Run Frontend
+# Setup and Run Frontend
 
 cd frontend
 npm install
@@ -41,7 +41,7 @@ npm start
 
 The frontend app will be available at: [http://localhost:3000](http://localhost:3000)
 
-Setup and Run Backend
+# Setup and Run Backend
 
 cd backend
 python -m venv venv
@@ -53,17 +53,17 @@ export FLASK_APP=app.py
 flask run
 
 # OR for Django:
-# python manage.py runserver
+python manage.py runserver
 
 The backend API will be available at: [http://localhost:5000](http://localhost:5000)
 
-Connecting Frontend and Backend
+# Connecting Frontend and Backend
 
 Ensure the frontend’s API base URL points to the backend address. Usually set in a `.env` file or config:
 
 REACT_APP_API_URL=http://localhost:5000/api
 
-Team Members
+## Team Members
 Member 1 - Kritika Nair
 Member 2 - Muskan Sahay
 Member 3 - Niyati Dave 

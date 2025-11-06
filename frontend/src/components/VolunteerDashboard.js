@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, CheckCircle, FileText, Upload, LogOut, User, Award, TrendingUp } from 'lucide-react';
 import './VolunteerDashboard.css';
+import { tasksAPI, eventsAPI } from '../services/api';
 
 const VolunteerDashboard = ({ user, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -10,63 +11,90 @@ const VolunteerDashboard = ({ user, onLogout }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [reportText, setReportText] = useState('');
   const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - Replace with API calls
+  // Fetch tasks and events from API
   useEffect(() => {
-    // Simulating fetching user's specific data
-    setMyTasks([
-      {
-        id: 1,
-        title: 'Prepare teaching materials',
-        event: 'Teaching Drive - Rural Schools',
-        status: 'in-progress',
-        priority: 'high',
-        dueDate: '2025-10-24'
-      },
-      {
-        id: 2,
-        title: 'Sort and pack books',
-        event: 'Book Distribution',
-        status: 'completed',
-        priority: 'medium',
-        dueDate: '2025-10-19'
-      }
-    ]);
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const [tasksRes, eventsRes] = await Promise.all([
+          tasksAPI.getAll(),
+          eventsAPI.getAll()
+        ]);
 
-    setMyEvents([
-      {
-        id: 1,
-        name: 'Teaching Drive - Rural Schools',
-        date: '2025-10-25',
-        location: 'Village Rampur',
-        status: 'upcoming',
-        role: 'Teaching Assistant'
-      },
-      {
-        id: 2,
-        name: 'Book Distribution',
-        date: '2025-10-20',
-        location: 'City Library',
-        status: 'ongoing',
-        role: 'Volunteer'
-      }
-    ]);
+        const allTasks = tasksRes.data || [];
+        const allEvents = eventsRes.data || [];
+        
+        // Filter tasks assigned to this volunteer
+        // Check both user.id and user._id for compatibility
+        const volunteerId = String(user.id || user._id || '');
+        const volunteerTasks = allTasks.filter(task => {
+          // Handle both string and object volunteerId
+          let taskVolunteerId = task.volunteerId;
+          if (typeof taskVolunteerId === 'object') {
+            taskVolunteerId = taskVolunteerId._id || taskVolunteerId;
+          }
+          return String(taskVolunteerId) === volunteerId;
+        });
 
-    setMyAttendance([
-      { id: 1, event: 'Awareness Campaign', date: '2025-09-15', status: 'present', hours: 6 },
-      { id: 2, event: 'Book Distribution', date: '2025-10-20', status: 'present', hours: 4 }
-    ]);
+        // Map tasks with event names
+        const tasksWithEvents = volunteerTasks.map(task => {
+          const event = allEvents.find(e => {
+            const eventId = typeof e._id === 'object' ? e._id.toString() : e._id;
+            const taskEventId = typeof task.eventId === 'object' 
+              ? task.eventId._id || task.eventId 
+              : task.eventId;
+            return eventId === taskEventId;
+          });
+          
+          return {
+            id: task._id,
+            title: task.title,
+            event: event ? event.name : 'Unknown Event',
+            status: task.status || 'pending',
+            priority: task.priority || 'medium',
+            dueDate: task.dueDate
+          };
+        });
 
-    setReports([
-      {
-        id: 1,
-        event: 'Awareness Campaign',
-        date: '2025-09-15',
-        type: 'Activity Report',
-        status: 'submitted'
+        setMyTasks(tasksWithEvents);
+        setMyEvents(allEvents.map(e => ({
+          id: e._id,
+          name: e.name,
+          date: e.date,
+          location: e.location,
+          status: e.status || 'upcoming',
+          role: 'Volunteer'
+        })));
+
+        // Keep mock attendance for now
+        setMyAttendance([
+          { id: 1, event: 'Awareness Campaign', date: '2025-09-15', status: 'present', hours: 6 },
+          { id: 2, event: 'Book Distribution', date: '2025-10-20', status: 'present', hours: 4 }
+        ]);
+
+        setReports([
+          {
+            id: 1,
+            event: 'Awareness Campaign',
+            date: '2025-09-15',
+            type: 'Activity Report',
+            status: 'submitted'
+          }
+        ]);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        alert('Error loading tasks. Please try again.');
+      } finally {
+        setLoading(false);
       }
-    ]);
-  }, []);
+    };
+
+    if (user) {
+      fetchData();
+    }
+  }, [user]);
 
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
@@ -304,7 +332,12 @@ const VolunteerDashboard = ({ user, onLogout }) => {
               <h2 className="page-title">My Tasks</h2>
 
               <div className="tasks-grid-vol">
-                {myTasks.length === 0 ? (
+                {loading ? (
+                  <div className="empty-state">
+                    <Clock size={48} />
+                    <p>Loading tasks...</p>
+                  </div>
+                ) : myTasks.length === 0 ? (
                   <div className="empty-state">
                     <CheckCircle size={48} />
                     <p>No tasks assigned yet</p>
@@ -319,7 +352,9 @@ const VolunteerDashboard = ({ user, onLogout }) => {
                       <h4>{task.title}</h4>
                       <p className="task-event">{task.event}</p>
                       <div className="task-footer">
-                        <span className="due-date">Due: {formatDate(task.dueDate)}</span>
+                        {task.dueDate && (
+                          <span className="due-date">Due: {formatDate(task.dueDate)}</span>
+                        )}
                       </div>
                     </div>
                   ))
