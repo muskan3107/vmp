@@ -1,74 +1,70 @@
-# Aksharsetu — Volunteer Management Portal
+# Getting Started with Create React App
 
-## Project Overview
+This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
-Aksharsetu is a web application designed to help both on-ground volunteers and NGO admins stay organized and connected.
-It provides an easy-to-use platform to manage volunteering sessions, log hours, track activities, and support NGO missions with technical and non-technical features.
+## Available Scripts
 
-## Key Features
+In the project directory, you can run:
 
-### Volunteer Portal
+### `npm start`
 
-* User-friendly space where volunteers can check in to their sessions, check tasks, log hours, upload reports or photos
-* Quick access to important resources volunteers might need
+Runs the app in the development mode.\
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
 
-### Admin Dashboard
+The page will reload when you make changes.\
+You may also see any lint errors in the console.
 
-* Basic control panel for NGO admins to manage sessions and volunteer activities
-* View reports, track volunteer participation, and confirm attendance without hassle
+### `npm test`
 
-### Technology Stack
+Launches the test runner in the interactive watch mode.\
+See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-* Frontend: React.js/HTML/CSS
-* Backend: Python (Flask)
-* Database: MongoDB
-* Authentication: JWT 
-* API: RESTful JSON endpoints
+### `npm run build`
 
-## Getting Started
+Builds the app for production to the `build` folder.\
+It correctly bundles React in production mode and optimizes the build for the best performance.
 
-### Prerequisites
+The build is minified and the filenames include the hashes.\
+Your app is ready to be deployed!
 
-* Node.js & npm (for frontend)
-* Python 3.x (for backend)
-* MongoDB 
+See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### Setup and Run Frontend
+### `npm run eject`
 
-cd frontend<br>
-npm install<br>
-npm start
+**Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
-The frontend app will be available at: [http://localhost:3000](http://localhost:3000)
+If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
 
-### Setup and Run Backend
+Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
 
-cd backend<br>
-python -m venv venv<br>
-source venv/bin/activate       # Windows: venv\Scripts\activate<br>
-pip install -r requirements.txt
+You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
 
-### For Python:
-python app.py
+## Learn More
 
-### For Flask:
-export FLASK_APP=app.py<br>
-flask run
+You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
-### OR for Django:
-python manage.py runserver
+To learn React, check out the [React documentation](https://reactjs.org/).
 
-The backend API will be available at: [http://localhost:5000](http://localhost:5000)
+### Code Splitting
 
-### Connecting Frontend and Backend
+This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
 
-Ensure the frontend’s API base URL points to the backend address. Usually set in a `.env` file or config:
+### Analyzing the Bundle Size
 
-REACT_APP_API_URL=http://localhost:5000/api
+This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
 
-## Team Members
-* Member 1 - Kritika Nair
-* Member 2 - Muskan Sahay
-* Member 3 - Niyati Dave 
-* Member 4 - Pranami Mishra
-* Member 5 - Rajnandini Kathote
+### Making a Progressive Web App
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+
+### Advanced Configuration
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+
+### Deployment
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+
+### `npm run build` fails to minify
+
+This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)

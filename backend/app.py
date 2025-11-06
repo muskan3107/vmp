@@ -272,6 +272,9 @@ def get_tasks(current_user):
 @admin_required
 def create_task(current_user):
     new_task = request.get_json()
+    # Set default status if not provided
+    if 'status' not in new_task:
+        new_task['status'] = 'pending'
     inserted = mongo.db.tasks.insert_one(new_task)
     new_task['_id'] = str(inserted.inserted_id)
     return jsonify(new_task), 201

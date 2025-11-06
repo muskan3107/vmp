@@ -23,6 +23,7 @@ const VolunteerPortal = ({ user, onLogout }) => {
   const [showAddVolunteer, setShowAddVolunteer] = useState(false);
   const [showAddEvent, setShowAddEvent] = useState(false);
   const [showAddTask, setShowAddTask] = useState(false);
+  const [showAddAttendance, setShowAddAttendance] = useState(false);
 
   // Form states
   const [newVolunteer, setNewVolunteer] = useState({
@@ -33,6 +34,9 @@ const VolunteerPortal = ({ user, onLogout }) => {
   });
   const [newTask, setNewTask] = useState({
     eventId: '', volunteerId: '', title: '', description: '', priority: 'medium', dueDate: ''
+  });
+  const [newAttendance, setNewAttendance] = useState({
+    date: '', eventId: '', selectedVolunteers: [], status: 'present', hours: '0'
   });
 
   // Fetch data on mount
@@ -161,6 +165,53 @@ const VolunteerPortal = ({ user, onLogout }) => {
       console.error('Error updating task:', error);
       alert('Error: ' + error.message);
     }
+  };
+
+  // Add attendance
+  const handleAddAttendance = async (e) => {
+    e.preventDefault();
+    if (!newAttendance.date || !newAttendance.eventId || newAttendance.selectedVolunteers.length === 0) {
+      alert('Please fill in all required fields and select at least one volunteer');
+      return;
+    }
+    
+    try {
+      // Create attendance records for each selected volunteer
+      const records = newAttendance.selectedVolunteers.map(volunteerId => ({
+        date: newAttendance.date,
+        eventId: newAttendance.eventId,
+        volunteerId: volunteerId,
+        status: newAttendance.status,
+        hours: parseFloat(newAttendance.hours) || 0
+      }));
+
+      await attendanceAPI.createBulk({ records });
+      
+      // Refresh attendance data
+      const attRes = await attendanceAPI.getAll();
+      setAttendance(attRes.data);
+      
+      // Reset form
+      setNewAttendance({ date: '', eventId: '', selectedVolunteers: [], status: 'present', hours: '0' });
+      setShowAddAttendance(false);
+      showSuccessMessage(`Attendance added for ${records.length} volunteer(s)!`);
+    } catch (error) {
+      console.error('Error adding attendance:', error);
+      alert('Error: ' + error.message);
+    }
+  };
+
+  // Toggle volunteer selection for attendance
+  const toggleVolunteerSelection = (volunteerId) => {
+    setNewAttendance(prev => {
+      const isSelected = prev.selectedVolunteers.includes(volunteerId);
+      return {
+        ...prev,
+        selectedVolunteers: isSelected
+          ? prev.selectedVolunteers.filter(id => id !== volunteerId)
+          : [...prev.selectedVolunteers, volunteerId]
+      };
+    });
   };
 
   // Success message
@@ -437,14 +488,13 @@ const VolunteerPortal = ({ user, onLogout }) => {
                     <th>Contact</th>
                     <th>Skills</th>
                     <th>Hours</th>
-                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredVolunteers.length === 0 ? (
                     <tr>
-                      <td colSpan="6" className="empty-state-cell">
+                      <td colSpan="5" className="empty-state-cell">
                         <div className="empty-state-large">
                           <Users size={48} />
                           <p>No volunteers found</p>
@@ -473,7 +523,6 @@ const VolunteerPortal = ({ user, onLogout }) => {
                         </td>
                         <td><span className="skill-badge">{v.skills || 'N/A'}</span></td>
                         <td><strong>{v.hours}h</strong></td>
-                        <td><span className={`status-badge ${v.status}`}>{v.status}</span></td>
                         <td>
                           <div className="action-buttons">
                             <button className="icon-btn delete" onClick={() => deleteVolunteer(v._id)}>
@@ -599,6 +648,10 @@ const VolunteerPortal = ({ user, onLogout }) => {
           <div className="view-content fade-in">
             <div className="page-header">
               <h2>Attendance Records</h2>
+              <button className="primary-btn orange" onClick={() => setShowAddAttendance(true)}>
+                <Plus size={20} />
+                Add Attendance
+              </button>
             </div>
 
             <div className="table-card">
@@ -862,6 +915,132 @@ const VolunteerPortal = ({ user, onLogout }) => {
                 </button>
                 <button type="submit" className="primary-btn green">
                   Assign Task
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showAddAttendance && (
+        <div className="modal-overlay" onClick={() => setShowAddAttendance(false)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+            <div className="modal-header">
+              <h3>Add Attendance</h3>
+              <button className="close-btn" onClick={() => setShowAddAttendance(false)}>
+                <X size={24} />
+              </button>
+            </div>
+            <form onSubmit={handleAddAttendance} className="modal-form">
+              <div className="form-group">
+                <label>Date *</label>
+                <input
+                  type="date"
+                  value={newAttendance.date}
+                  onChange={(e) => setNewAttendance({...newAttendance, date: e.target.value})}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <label>Select Event *</label>
+                <select
+                  value={newAttendance.eventId}
+                  onChange={(e) => setNewAttendance({...newAttendance, eventId: e.target.value})}
+                  required
+                >
+                  <option value="">Choose event</option>
+                  {events.map(e => (
+                    <option key={e._id} value={e._id}>{e.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Select Volunteers *</label>
+                <div style={{ 
+                  border: '1px solid #ddd', 
+                  borderRadius: '8px', 
+                  padding: '12px', 
+                  maxHeight: '200px', 
+                  overflowY: 'auto',
+                  backgroundColor: '#f9f9f9'
+                }}>
+                  {volunteers.length === 0 ? (
+                    <p className="text-muted">No volunteers available</p>
+                  ) : (
+                    volunteers.map(v => {
+                      const isSelected = newAttendance.selectedVolunteers.includes(v._id);
+                      return (
+                        <div
+                          key={v._id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '8px',
+                            cursor: 'pointer',
+                            borderRadius: '4px',
+                            marginBottom: '4px',
+                            backgroundColor: isSelected ? '#e3f2fd' : 'transparent',
+                            transition: 'background-color 0.2s'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) e.currentTarget.style.backgroundColor = '#f0f0f0';
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) e.currentTarget.style.backgroundColor = 'transparent';
+                          }}
+                          onClick={() => toggleVolunteerSelection(v._id)}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => toggleVolunteerSelection(v._id)}
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ marginRight: '10px', cursor: 'pointer' }}
+                          />
+                          <div>
+                            <p style={{ margin: 0, fontWeight: '500' }}>{v.name}</p>
+                            <p style={{ margin: 0, fontSize: '12px', color: '#666' }}>{v.email}</p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                {newAttendance.selectedVolunteers.length > 0 && (
+                  <p style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>
+                    {newAttendance.selectedVolunteers.length} volunteer(s) selected
+                  </p>
+                )}
+              </div>
+              <div className="form-group">
+                <label>Status *</label>
+                <select
+                  value={newAttendance.status}
+                  onChange={(e) => setNewAttendance({...newAttendance, status: e.target.value})}
+                  required
+                >
+                  <option value="present">Present</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Hours</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  placeholder="Enter hours worked"
+                  value={newAttendance.hours}
+                  onChange={(e) => setNewAttendance({...newAttendance, hours: e.target.value})}
+                />
+                <small style={{ color: '#666', fontSize: '12px' }}>Leave 0 for absent volunteers</small>
+              </div>
+              <div className="modal-actions">
+                <button type="button" className="secondary-btn" onClick={() => setShowAddAttendance(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="primary-btn orange">
+                  Add Attendance
                 </button>
               </div>
             </form>
