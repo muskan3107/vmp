@@ -289,7 +289,7 @@ const VolunteerPortal = ({ user, onLogout }) => {
               <div className="logo">AP</div>
               <div className="logo-text">
                 <h1>Akshar Paaul</h1>
-                <p>Volunteer Management Portal</p>
+                <p>AksharSetu - Volunteer Management Portal</p>
               </div>
             </div>
           </div>

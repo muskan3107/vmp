@@ -53,7 +53,7 @@ const LoginPage = ({ onLogin }) => {
           <div className="login-header">
             <div className="login-logo">AP</div>
             <h1>Akshar Paaul</h1>
-            <p>Volunteer Management Portal</p>
+            <p>AksharSetu - Volunteer Management Portal</p>
           </div>
 
           <div className="user-type-selector">
